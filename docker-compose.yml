@@ -8,12 +8,12 @@ services:
     container_name: threados_v2
     restart: always
     expose:
-      - "8000"
+      - "8099"
     volumes:
       - threados_data:/app/storage
     environment:
       - DATABASE_URL=sqlite:////app/storage/app.db
-      - PORT=8000
+      - PORT=8099
       # Add other env vars in Coolify (THREADS_*, etc.)
 
 volumes:

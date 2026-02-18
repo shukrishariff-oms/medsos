@@ -33,8 +33,8 @@ RUN mkdir -p /app/storage && chmod -R 777 /app/storage
 # Set working directory to backend root for easier imports
 WORKDIR /app
 
-# Expose port 8000 (Standard)
-EXPOSE 8000
+# Expose port (Non-standard to avoid conflicts)
+EXPOSE 8099
 
 # Simple entrypoint to migrate and run
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8099"]
