@@ -1,22 +1,20 @@
 version: '3.8'
 
 services:
-  # UNIFIED SERVICE (Frontend + Backend)
-  app:
+  web:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: threados_app
+    container_name: threados_v2
     restart: always
-    expose:
-      - "8000"
+    ports:
+      - "8000:8000"
     volumes:
-      - storage_data:/app/storage
+      - threados_data:/app/storage
     environment:
-      # Absolute path is safely hardcoded here
       - DATABASE_URL=sqlite:////app/storage/app.db
-      # Other env vars should be set in Coolify
+      - PORT=8000
+      # Add other env vars in Coolify (THREADS_*, etc.)
 
 volumes:
-  storage_data:
-    driver: local
+  threados_data:
