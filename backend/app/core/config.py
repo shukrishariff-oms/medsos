@@ -5,11 +5,14 @@ class Settings(BaseSettings):
     APP_ENV: str = "local"
     DATABASE_URL: str = "sqlite:////app/storage/app.db"
     
+    # App URLs
+    FRONTEND_URL: str = "http://localhost:5173"
+
     # Threads API
     THREADS_GRAPH_BASE: str = "https://graph.threads.net"
     THREADS_CLIENT_ID: str = ""
     THREADS_CLIENT_SECRET: str = ""
-    THREADS_REDIRECT_URI: str = "http://localhost:8000/auth/threads/callback"
+    THREADS_REDIRECT_URI: str = "http://localhost:8000/api/auth/threads/callback" # Updated to include /api prefix if needed, or matched with Router
     THREADS_SCOPES: str = "threads_basic,threads_content_publish,threads_delete,threads_read_replies,threads_manage_replies,threads_manage_insights"
     
     LOG_LEVEL: str = "INFO"
@@ -25,6 +28,10 @@ class Settings(BaseSettings):
         # Fix for Coolify/Docker environment where DATABASE_URL might be set to the old relative path
         if "storage/app.db" in self.DATABASE_URL and "///../" in self.DATABASE_URL and os.path.exists("/app/storage"):
             # Force absolute path in Docker environment
+            # Force absolute path in Docker environment
             self.DATABASE_URL = "sqlite:////app/storage/app.db"
+
+    def get_scopes_list(self) -> list[str]:
+        return [s.strip() for s in self.THREADS_SCOPES.split(",") if s.strip()]
 
 settings = Settings()

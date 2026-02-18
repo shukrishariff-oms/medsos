@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { cn } from '../ui';
+import { cn } from './index';
 import { X } from 'lucide-react';
 
 export function Toast({ message, type = 'success', onClose, duration = 3000, details }) {
