@@ -10,8 +10,6 @@ services:
     restart: always
     expose:
       - "8000"
-    ports:
-      - "8000:8000"
     volumes:
       - storage_data:/app/storage
     environment:
