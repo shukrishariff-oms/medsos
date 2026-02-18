@@ -23,7 +23,9 @@ COPY <<EOF /app/entrypoint.sh
 #!/bin/bash
 echo "Ensuring storage permissions..."
 mkdir -p /app/storage/backups
+touch /app/storage/app.db
 chmod -R 777 /app/storage
+ls -la /app/storage
 echo "Running database migrations..."
 alembic upgrade head
 echo "Starting backend..."
