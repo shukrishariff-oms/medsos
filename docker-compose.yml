@@ -1,49 +1,24 @@
 version: '3.8'
 
 services:
-  # BACKEND
-  backend:
+  # UNIFIED SERVICE (Frontend + Backend)
+  app:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
+    container_name: threados_app
     restart: always
     expose:
-      - "8001"
+      - "8000"
+    ports:
+      - "8000:8000"
     volumes:
       - storage_data:/app/storage
     environment:
-      # Hardcode the CORRECT absolute path to prevent environment variable overrides from breaking migrations
+      # Absolute path is safely hardcoded here
       - DATABASE_URL=sqlite:////app/storage/app.db
-
-  # FRONTEND BUILDER (Ephemeral service)
-  frontend-builder:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    volumes:
-      - frontend_dist:/dist_volume
-    # 1. Install deps
-    # 2. Build Vite app
-    # 3. Copy output to shared volume
-    command: /bin/sh -c "npm ci && npm run build && cp -r dist/* /dist_volume/"
-
-  # NGINX REVERSE PROXY
-  nginx:
-    image: nginx:alpine
-    restart: always
-    expose:
-      - "80"
-    volumes:
-      # Mount directory to avoid "not a directory" errors
-      - ./nginx:/etc/nginx/conf.d:ro
-      # Serve static files from shared volume
-      - frontend_dist:/usr/share/nginx/html:ro
-    depends_on:
-      - backend
-      - frontend-builder
+      # Other env vars should be set in Coolify
 
 volumes:
-  frontend_dist:
-    driver: local
   storage_data:
     driver: local
