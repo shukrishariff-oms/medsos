@@ -33,7 +33,12 @@ export default function Compose() {
     const fetchPosts = async () => {
         try {
             const data = await listPosts();
-            setPosts(data);
+            if (Array.isArray(data)) {
+                setPosts(data);
+            } else {
+                console.error("Unexpected posts data format:", data);
+                setPosts([]);
+            }
         } catch (error) {
             console.error("Failed to fetch posts", error);
         }
@@ -139,8 +144,8 @@ export default function Compose() {
                                 <p className="text-sm whitespace-pre-wrap flex-1">{post.text}</p>
                                 <div className="flex flex-col items-end gap-2">
                                     <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded-full ${post.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' :
-                                            post.status === 'FAILED' ? 'bg-red-100 text-red-700' :
-                                                'bg-gray-100 text-gray-700'
+                                        post.status === 'FAILED' ? 'bg-red-100 text-red-700' :
+                                            'bg-gray-100 text-gray-700'
                                         }`}>
                                         {post.status}
                                     </span>

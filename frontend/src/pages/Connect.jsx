@@ -20,9 +20,10 @@ export default function Connect() {
 
     const checkConnection = async () => {
         try {
+            // Updated endpoint to match new router mounting
             const res = await api.get('/threads/me');
             setConnected(true);
-            setUsername(res.data.username);
+            setUsername(res.data.username || 'User');
         } catch (error) {
             // Not connected
             setConnected(false);
