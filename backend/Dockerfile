@@ -12,7 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Ensure storage directory exists
-RUN mkdir -p /app/storage/backups
+# Ensure storage directory exists and has write permissions
+RUN mkdir -p /app/storage/backups && chmod -R 777 /app/storage
 
 # Expose port
 EXPOSE 8001
