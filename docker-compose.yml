@@ -7,8 +7,8 @@ services:
       dockerfile: Dockerfile
     container_name: threados_v2
     restart: always
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     volumes:
       - threados_data:/app/storage
     environment:
