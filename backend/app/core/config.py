@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     APP_ENV: str = "local"
-    DATABASE_URL: str = "sqlite:///../storage/app.db"
+    DATABASE_URL: str = "sqlite:////app/storage/app.db"
     
     # Threads API
     THREADS_GRAPH_BASE: str = "https://graph.threads.net"

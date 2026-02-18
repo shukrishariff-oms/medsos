@@ -21,7 +21,9 @@ EXPOSE 8001
 # Entrypoint script to run migrations then start app
 COPY <<EOF /app/entrypoint.sh
 #!/bin/bash
-set -e
+echo "Ensuring storage permissions..."
+mkdir -p /app/storage/backups
+chmod -R 777 /app/storage
 echo "Running database migrations..."
 alembic upgrade head
 echo "Starting backend..."
