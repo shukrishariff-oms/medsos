@@ -11,7 +11,7 @@ services:
     volumes:
       - storage_data:/app/storage
     environment:
-      - DATABASE_URL=sqlite:///../storage/app.db
+      - DATABASE_URL=sqlite:////app/storage/app.db
 
   frontend-builder:
     build:

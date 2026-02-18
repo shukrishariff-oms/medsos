@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     def __init__(self, **data):
         super().__init__(**data)
         # Fix for Coolify/Docker environment where DATABASE_URL might be set to the old relative path
-        if self.DATABASE_URL == "sqlite:///../storage/app.db" and os.path.exists("/app/storage"):
+        if "storage/app.db" in self.DATABASE_URL and "///../" in self.DATABASE_URL and os.path.exists("/app/storage"):
             # Force absolute path in Docker environment
             self.DATABASE_URL = "sqlite:////app/storage/app.db"
 
