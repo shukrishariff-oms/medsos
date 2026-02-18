@@ -4,6 +4,7 @@ import axios from 'axios';
 // because the same server (FastAPI) is serving both frontend and backend.
 // Only use localhost in DEV mode when they are separate.
 const BASE_URL = import.meta.env.PROD ? '/api' : (import.meta.env.VITE_API_BASE || 'http://localhost:8001/api');
+console.log("ThreadOS API BASE_URL:", BASE_URL, "PROD:", import.meta.env.PROD);
 
 const api = axios.create({
     baseURL: BASE_URL,
