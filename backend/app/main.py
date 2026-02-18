@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.routers import auth, threads, jobs
 
 app = FastAPI(title="ThreadOS API", version="1.0.0")
+print("🔥 FORCE REDEPLOY: BACKEND V3 STARTED 🔥")
 
 # CORS Configuration
 origins = [
