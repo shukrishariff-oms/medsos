@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import api from '../api/client';
+import api from '../lib/api';
 import { Button, Card, CardContent, CardHeader, CardTitle } from '../components/ui';
 import { Link as LinkIcon, CheckCircle, Loader2 } from 'lucide-react';
 
