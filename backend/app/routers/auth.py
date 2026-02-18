@@ -63,68 +63,85 @@ async def get_auth_status(db: Session = Depends(get_db)):
 async def auth_callback(code: str, db: Session = Depends(get_db)):
     """Exchanges the authorization code for an access token."""
     
-    # Exchange code for token
-    token_url = "https://graph.threads.net/oauth/access_token"
-    # IMPORTANT: Redirect URI must match exactly what was sent in the authorization request
-    data = {
-        "client_id": settings.THREADS_CLIENT_ID,
-        "client_secret": settings.THREADS_CLIENT_SECRET,
-        "grant_type": "authorization_code",
-        "redirect_uri": settings.THREADS_REDIRECT_URI,
-        "code": code
-    }
-    
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.post(token_url, data=data)
-            response.raise_for_status()
-            token_data = response.json()
-        except httpx.HTTPError as e:
-            logger.error(f"Failed to exchange token: {e}")
-            raise HTTPException(status_code=400, detail="Failed to exchange authorization code")
-
-    access_token = token_data.get("access_token")
-    user_id = token_data.get("user_id") # Threads often returns user_id here too
-
-    if not access_token:
-         raise HTTPException(status_code=400, detail="No access token received")
-
-    # Fetch user details to create/update account
-    threads_client = ThreadsClient(access_token=access_token)
+    logger.info(f"Callback received with code: {code[:10]}...")
     try:
-        user_info = await threads_client.get_me()
-    except Exception as e:
-         logger.error(f"Failed to fetch user info: {e}")
-         raise HTTPException(status_code=400, detail="Failed to fetch user info from Threads")
-    
-    # Update/Create Account
-    account = db.query(Account).filter(Account.threads_user_id == user_info.get("id")).first()
-    if not account:
-        account = Account(
-            threads_user_id=user_info.get("id"),
-            username=user_info.get("username")
-        )
-        db.add(account)
+        # Exchange code for token
+        token_url = "https://graph.threads.net/oauth/access_token"
+        
+        logger.info(f"Exchanging token with redirect_uri: {settings.THREADS_REDIRECT_URI}")
+        
+        # IMPORTANT: Redirect URI must match exactly what was sent in the authorization request
+        data = {
+            "client_id": settings.THREADS_CLIENT_ID,
+            "client_secret": settings.THREADS_CLIENT_SECRET,
+            "grant_type": "authorization_code",
+            "redirect_uri": settings.THREADS_REDIRECT_URI,
+            "code": code
+        }
+        
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(token_url, data=data)
+                response.raise_for_status()
+                token_data = response.json()
+            except httpx.HTTPError as e:
+                logger.error(f"Failed to exchange token: {e}")
+                # Log response body if available for debugging
+                if hasattr(e, 'response') and e.response:
+                     logger.error(f"Response body: {e.response.text}")
+                raise HTTPException(status_code=400, detail="Failed to exchange authorization code")
+
+        access_token = token_data.get("access_token")
+        user_id = token_data.get("user_id") # Threads often returns user_id here too
+
+        if not access_token:
+             logger.error("No access token in response")
+             raise HTTPException(status_code=400, detail="No access token received")
+
+        logger.info("Token exchanged successfully. Fetching user info...")
+
+        # Fetch user details to create/update account
+        threads_client = ThreadsClient(access_token=access_token)
+        try:
+            user_info = await threads_client.get_me()
+            logger.info(f"User info fetched for: {user_info.get('username')}")
+        except Exception as e:
+             logger.error(f"Failed to fetch user info: {e}")
+             raise HTTPException(status_code=400, detail=f"Failed to fetch user info from Threads: {str(e)}")
+        
+        # Update/Create Account
+        logger.info("Updating database...")
+        account = db.query(Account).filter(Account.threads_user_id == user_info.get("id")).first()
+        if not account:
+            account = Account(
+                threads_user_id=user_info.get("id"),
+                username=user_info.get("username")
+            )
+            db.add(account)
+            db.commit()
+            db.refresh(account)
+        
+        # Store/Update Token
+        token = db.query(Token).filter(Token.account_id == account.id).first()
+        if not token:
+            token = Token(
+                account_id=account.id,
+                access_token=access_token,
+                scopes=settings.THREADS_SCOPES
+            )
+            db.add(token)
+        else:
+            token.access_token = access_token
+        
         db.commit()
-        db.refresh(account)
-    
-    # Store/Update Token
-    # In a real app, handle multiple tokens or update existing
-    token = db.query(Token).filter(Token.account_id == account.id).first()
-    if not token:
-        token = Token(
-            account_id=account.id,
-            access_token=access_token,
-            scopes=settings.THREADS_SCOPES
-        )
-        db.add(token)
-    else:
-        token.access_token = access_token
-    
-    db.commit()
+        logger.info("Database updated successfully.")
 
-    db.commit()
-
-    from fastapi.responses import RedirectResponse
-    # Redirect to configured frontend URL
-    return RedirectResponse(url=f"{settings.FRONTEND_URL}/connect?connected=true&username={account.username}")
+        from fastapi.responses import RedirectResponse
+        # Redirect to configured frontend URL
+        redirect_target = f"{settings.FRONTEND_URL}/connect?connected=true&username={account.username}"
+        logger.info(f"Redirecting to: {redirect_target}")
+        return RedirectResponse(url=redirect_target)
+        
+    except Exception as e:
+        logger.error(f"CRITICAL ERROR in auth_callback: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error during auth callback: {str(e)}")
