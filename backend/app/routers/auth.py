@@ -10,6 +10,8 @@ import logging
 router = APIRouter(prefix="/auth/threads", tags=["auth"])
 logger = logging.getLogger(__name__)
 
+logger.info("AUTH ROUTER LOADED (v2-debug)")
+
 @router.post("/start")
 async def start_auth():
     """Generates the authorization URL for Threads."""
