@@ -11,7 +11,7 @@ services:
     expose:
       - "8001"
     volumes:
-      - ./storage:/app/storage
+      - storage_data:/app/storage
     env_file:
       - .env.prod
     environment:
@@ -53,4 +53,6 @@ services:
 
 volumes:
   frontend_dist:
+    driver: local
+  storage_data:
     driver: local
