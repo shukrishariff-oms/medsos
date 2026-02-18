@@ -1,0 +1,29 @@
+# Environment Variables
+.env
+.env.local
+.env.production
+.env.prod
+backend/.env
+backend/.env.local
+backend/.env.prod
+frontend/.env.local
+frontend/.env.production
+
+# Dependencies
+node_modules
+.venv
+venv
+__pycache__
+
+# Database
+storage/app.db
+*.sqlite3
+
+# Distribution
+dist
+build
+
+# Misc
+.DS_Store
+backups
+*.log
