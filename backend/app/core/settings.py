@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     APP_ENV: str = "local"
-    DATABASE_URL: str = "sqlite:///../storage/app.db"
+    DATABASE_URL: str = "sqlite:////app/storage/app.db"
     
     # App URLs
     FRONTEND_URL: str = "http://localhost:5173"
